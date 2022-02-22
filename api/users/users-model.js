@@ -39,7 +39,7 @@ function findBy(filter) {
 
     select u.user_id, u.username, u.password, r.role_name from users as u
       join roles as r on u.role_id = r.role_id
-      where user_id =1;
+      where u.user_id =1;
 
     [
       {
