@@ -30,30 +30,28 @@ router.post("/register", validateRoleName, (req, res, next) => {
    */
 
 router.post("/login", checkUsernameExists, (req, res, next) => {
-  let { username, password } = req.body
-
-  Users.findBy({ username })
-    .then(([user]) => {
-      if(user && bcrypt.compareSync(password, user.password)) {
-        const token = generateToken(user);
-        res.status(200).json({
-          message: `${user.username} is back!`,
-          token,
-        })
-      } else {
-        next({ status: 401, message: 'Invalid credentials' })
-      }
+  if(bcrypt.compareSync(req.body.password, req.user.password)) {
+    const token = generateToken(req.user);
+    res.status(200).json({
+      message: `${req.user.username} is back!`,
+      token,
     })
-    .catch(next)
+  } else {
+    next({ status: 401, message: 'Invalid credentials' })
+  }
 });
+
 
 function generateToken(user) {
   const payload = {
-    subject: user.id,
+    subject: user.user_id,
     username: user.username,
     role_name: user.role_name
-  };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' })
+  }
+  const options = {
+    expiresIn: '1d'
+  }
+  return jwt.sign(payload, JWT_SECRET, options)
 }
   /**
     [POST] /api/auth/login { "username": "sue", "password": "1234" }

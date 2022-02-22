@@ -54,18 +54,18 @@ const only = role_name => (req, res, next) => {
 
 
 
-async function checkUsernameExists (req, res, next) {
-  try {
-    const users = await Users.findBy({ username: req.body.username})
-    if(users.length) {
-      req.user = users[0]
-      next()
-    } else {
-      next({ status: 401, message: 'Invalid credentials' })
-    }
-  } catch(err) {
-    next(err)
+const checkUsernameExists = async (req, res, next) => {
+try {
+  const [user] = await Users.findBy({ username: req.body.username})
+  if(!user) {
+    next({ status: 401, message: 'Invalid credentials' })
+  } else {
+    req.user = user
+    next()
   }
+} catch(err) {
+  next(err)
+}
 }
   /*
     If the username in req.body does NOT exist in the database
